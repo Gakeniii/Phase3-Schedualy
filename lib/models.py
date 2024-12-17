@@ -15,7 +15,7 @@ class Patient(Base):
     phone = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
 
-    appointments = relationship("Appointment", back_populates="patients")
+    appointments = relationship("Appointment", back_populates="patient")
 
     def __repr__(self):
         return f"Patient(id = {self.id}, name = '{self.name}', age = {self.age}, illness = '{self.illness})"
@@ -26,12 +26,12 @@ class Doctor(Base):
     name = Column(String, nullable=False)
     specialty = Column(String, nullable=False)
 
-    appointments = relationship("Appoitnment", back_populates="doctor")
+    appointments = relationship("Appointment", back_populates="doctor")
 
     def __repr__(self):
         return f"Doctor(id = {self.id}, name = '{self.name}', speciality = '{self.specialty}')"
 
-class Appointmnet(Base):
+class Appointment(Base):
     __tablename__ = "appointments"
     id = Column(Integer, primary_key=True)
     patient_id = Column(Integer, ForeignKey('patients.id'), nullable=False)
@@ -39,7 +39,7 @@ class Appointmnet(Base):
     date = Column(String, nullable=False)
 
     patient = relationship("Patient", back_populates="appointments")
-    doctor = relationship("Doctors", back_populates="appointmnets")
+    doctor = relationship("Doctor", back_populates="appointments")
 
     def __repr__(self):
         return f"Appointment(id ={self.id}, patient_id={self.patient_id}, doctor_id={self.doctor_id}, date='{self.date}')"
