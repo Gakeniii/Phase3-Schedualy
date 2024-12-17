@@ -157,7 +157,7 @@ def main_menu():
         print("00. Exit") 
 
         choice = input("Select a choice: ")
-
+        
         if choice == "1":
             create_patient()
         elif choice == "2":
