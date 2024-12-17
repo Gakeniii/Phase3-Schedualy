@@ -13,7 +13,7 @@ class Patient(Base):
     age = Column(Integer, nullable=False)
     illness = Column(String, nullable=False)
     phone = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, unique=True, nullable=False)
 
     appointments = relationship("Appointment", back_populates="patients")
 
@@ -35,7 +35,7 @@ class Appointmnet(Base):
     __tablename__ = "appointments"
     id = Column(Integer, primary_key=True)
     patient_id = Column(Integer, ForeignKey('patients.id'), nullable=False)
-    doctor_id = Column(Integer, ForeignKey('doctor.id'), nullable=False)
+    doctor_id = Column(Integer, ForeignKey('doctors.id'), nullable=False)
     date = Column(String, nullable=False)
 
     patient = relationship("Patient", back_populates="appointments")
