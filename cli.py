@@ -80,6 +80,7 @@ def view_patient_info():
             print("No patient history")
 
 def view_all_patients():
+    #Returning lists of all patients
     patients = session.query(Patient).all()
     if patients:
         for patient in patients:
@@ -131,6 +132,7 @@ def view_doctor_info():
         print("No doctor history, Doctor not found")
 
 def view_all_doctors():
+    #Returning lists of all doctors
     doctors = session.query(Doctor).all()
     if doctors:
         for doctor in doctors:
@@ -245,6 +247,7 @@ def delete_appointment():
         print("Appointment not found.")
 
 def view_all_appointments():
+    #Returnig list of all appointments
     appointments = session.query(Appointment).all()
     if not appointments:
         print("No appointments scheduled.")
