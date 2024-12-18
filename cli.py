@@ -30,7 +30,12 @@ def create_patient():
     print(f"\nPatient added successfully!")
 
 def update_patient():
-    patient_id = int(input("Enter the patient's ID: "))
+    patients = session.query(Patient).all()
+    print("\nRegistered patients:")
+    for patient in patients:
+        print(f"{patient.id}. {patient.name}")
+
+    patient_id = int(input("\nEnter the patient's ID: "))
     patient = session.get(Patient, patient_id)
 
     if patient:
@@ -39,24 +44,31 @@ def update_patient():
         patient.illess = input(f"Enter new illess (current illness: {patient.illness}): ") or patient.illness
         patient.phone = input(f"Enter new telephone number (current Tel: {patient.phone}): ") or patient.phone
         patient.email = input(f"Enter new email address (current email: {patient.email}): ") or patient.email
-
-        session.commit()
-        print("Patient's information updated successfully!")
+        confirm = input("Confirm changes? (yes/no): ").lower()
+        if confirm == "yes":
+            session.commit()
+            print("Patient's information updated successfully!")
+        else:
+            print("Update canceled.")
     else:
         print("Patient not found.")
 
 def delete_patient():
-    patient_id = int(input("Enter patient's ID to delete: "))
+    patient_id = int(input("\nEnter patient's ID to delete: "))
     patient = session.get(Patient, patient_id)
     if patient:
-        session.delete(patient)
-        session.commit()
-        print("Patient deleted successfully!")
+        confirm = input("Are you sure you want to delete the patient? (yes/no): ")
+        if confirm == "yes":
+            session.delete(patient)
+            session.commit()
+            print("Patient deleted successfully!")
+        else:
+            print("Patient not deleted")
     else:
         print("Patient not found")
 
 def view_patient_info():
-    patient_id = int(input("Enter ID to view: "))
+    patient_id = int(input("\nEnter ID to view: "))
     patient = session.get(Patient, patient_id)
     if patient:
         print(f"NAME: {patient.name}")
@@ -64,11 +76,6 @@ def view_patient_info():
         print(f"ILLNESS: {patient.illness}")
         print(f"TEL-NO: {patient.phone}")
         print(f"EMAIL ADDRESS: {patient.email}")
-        print(f"Upcoming Appointments:")
-
-        for appointment in patient.appointments:
-            doctor = session.query(Doctor).get(appointment.doctor_id)
-            print(f"\nDate: {appointment.date} \nDoctor: Dr. {doctor.name} ({doctor.specialy})")
     else:
             print("No patient history")
 
@@ -120,10 +127,6 @@ def view_doctor_info():
     if doctor:
         print(f"\nNAME: Dr. {doctor.name}")
         print(f"SPECIALTY: {doctor.specialty}")
-        print("Assigned Patients:")
-        for appointment in doctor.appointments:
-            patient = session.get(Patient, appointment.patient_id)
-            print(f"NAME: {patient.name}, ILLNESS: {patient.illness}")
     else:
         print("No doctor history, Doctor not found")
 
@@ -134,8 +137,127 @@ def view_all_doctors():
             print(f"\n{doctor.id}. Dr.{doctor.name} ({doctor.specialty})")
     else:
         print("No doctors found")
+        
 
 # ---------------SCHEDULING APPOINTMENTS DATABASE-----------
+def schedule_appointment():
+    patients = session.query(Patient).all()
+    doctors = session.query(Doctor).all()
+
+    # if not patients or doctors:
+    #     print("Make sure you have both patients and doctors are registered")
+    #     return
+    print("\nAvailable Patients:")
+    for patient in patients:
+        print(f"{patient.id}. {patient.name} ({patient.age})Y/O, {patient.illness}")
+
+    print("\nAvailable Doctors:")
+    for doctor in doctors:
+        print(f"{doctor.id}. Dr.{doctor.name} ({doctor.specialty})")
+
+    patient_id = int(input("\nSelect patient ID: "))
+    doctor_id = int(input("Select doctor ID: "))
+    date = input("Enter appointment date (DD-MM-YYYY): ")
+
+# Confirmation  
+
+    patient = session.get(Patient, patient_id)
+    doctor = session.get(Doctor, doctor_id)
+
+    if not patient:
+        print("Invalid patient ID")
+    if not doctor:
+        print("Invalid doctor ID")
+
+    print(f"\nScheduling Appointment:")
+    print(f"    Patient: {patient.name} ({patient.illness})")
+    print(f"    Doctor: Dr.{doctor.name} ({doctor.specialty})")
+    print(f"    Date: {date}")
+
+    #Confirming appointment scheduled
+    confirm = input("Confirm appointment? (yes/no): ").lower()
+    if confirm == "yes":
+        appointment = Appointment(patient_id=patient_id, doctor_id=doctor_id, date=date)
+        session.add(appointment)
+        session.commit()
+        print("Appointment scheduled successfully!")
+    else:
+        print("Appointment cancelled")
+
+def update_appointment():
+    appointment_id = int(input("Enter appointment ID to edit: "))
+    appointment = session.get(Appointment, appointment_id)
+    if appointment:
+        patient = session.get(Patient, appointment.patient_id)
+        doctor = session.get(Doctor, appointment.doctor_id)
+
+        print(f"\nCurrent details:")
+        print(f"  Patient: {patient.name} ({patient.illness})")
+        print(f"  Doctor: Dr.{doctor.name} ({doctor.specialty})")
+        print(f"  Date: {appointment.date}")
+
+        print("\nAvailable Patients:")
+        patients = session.query(Patient).all()
+        for patient in patients:
+            print(f"{patient.id}. {patient.name} ({patient.illness})")
+
+        print("\nAvailable Doctor:")
+        doctors = session.query(Doctor).all()
+        for doctor in doctors:
+            print(f"{doctor.id}. Dr.{doctor.name} ({doctor.specialty})")
+
+        new_patient_id = input(f"\nEnter new patient ID: (current ID: {appointment.patient_id}): ") or appointment.patient_id
+        new_doctor_id = input(f"Enter new doctor ID: (current ID: {appointment.doctor_id}): ") or appointment.doctor_id
+        new_date = input(f"Enter new date (current date: {appointment.date}): ") or appointment.date
+
+        # confirming the updated details
+        update_patient = session.get(Patient, new_patient_id)
+        update_doctor = session.get(Doctor, new_doctor_id)
+        print(f"\nUpdated Appointment Details:")
+        print(f"  Patient: {update_patient.name} ({update_patient.illness})")
+        print(f"  Doctor: Dr.{update_doctor.name} ({update_doctor.specialty})")
+        print(f"  Date: {new_date}")
+        
+        confirm = input("Confirm changes? (yes/no): ").lower()
+        if confirm == "yes":
+            appointment.patient_id = int(new_patient_id)
+            appointment.doctor_id = int(new_doctor_id)
+            appointment.date = new_date
+            session.commit()
+            print("Appointment updated successfully!")
+        else:
+            print("No updates")
+    else:
+        print("Appointment not found.")
+
+def delete_appointment():
+    appointment_id = int(input("Enter appointment ID to delete: "))
+    appointment = session.get(Appointment, appointment_id)
+    if appointment:
+        confirm = input("Delete appointment? (yes/no): ").lower()
+        if confirm == "yes":
+            session.delete(appointment)
+            session.commit()
+            print("Appointment deleted successfully!")
+        else:
+            print("Deletation canceled")
+    else:
+        print("Appointment not found.")
+
+def view_all_appointments():
+    appointments = session.query(Appointment).all()
+    if not appointments:
+        print("No appointments scheduled.")
+        return
+    
+    for appointment in appointments:
+        patient = session.get(Patient, appointment.patient_id)
+        doctor = session.get(Doctor, appointment.doctor_id)
+        print(f"\nAppointments ID: {appointment.id} | Date: {appointment.date}")
+        print(f"  Patient: {patient.name} ({patient.illness})")
+        print(f"  Doctor: Dr.{doctor.name} ({doctor.specialty})")
+
+
 
 def main_menu():
     while True:
@@ -150,11 +272,15 @@ def main_menu():
         print("\n    DOCTORS ")
         print("6. Add a doctor")
         print("7. Update doctor's information")
-        print("9. Delete a doctor")
+        print("8. Delete a doctor")
         print("9. View doctor's information")
         print("10. All doctors")
         print("\n    APPOINTMENTS ")
-        print("00. Exit") 
+        print("12. Schedule an appointment")
+        print("13. Update an appointment")
+        print("14. Delete an appointment")
+        print("15. View all appointments")
+        print("\n00. Exit") 
 
         choice = input("Select a choice: ")
         if choice == "1":
@@ -177,6 +303,14 @@ def main_menu():
             view_doctor_info()
         elif choice == "10":
             view_all_doctors()
+        elif choice == "12":
+            schedule_appointment()
+        elif choice == "13":
+            update_appointment()
+        elif choice == "14":
+            delete_appointment()
+        elif choice == "15":
+            view_all_appointments()
         elif choice == "00":
             print("Thank you for choosing Schedualy ;)")
             print("Exiting ......")
