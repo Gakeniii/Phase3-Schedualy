@@ -17,7 +17,7 @@ Next in your terminal inside your virtual environment, initialize the database b
 
 Enjoy using Schedualy!
 
-## Functions
+# Functions
   # Patient section
   - `add_patient` adds a patient to the database
   - `update_patient` updates a patient's information
