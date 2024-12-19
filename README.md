@@ -35,6 +35,12 @@ Enjoy using Schedualy!
   - `delete_appointment` deletes an appointment
   - `view_all_appointments` lists all the appointments that have been scheduled
   # Exit - ends the session
+  
+  # Best Practices Followed
+  - Modular Code: Separate files for CLI logic, models, and database configuration.
+  - SQLAlchemy ORM: Ensures easy database management with proper relationships.
+  - Virtual Environment: Dependencies isolated using Pipenv.
+  - Error Handling: Includes checks for invalid inputs (e.g patient not found)
 
   - email: gakenisifa@gmail.com
 ## License 
